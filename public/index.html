@@ -3,9 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chocket</title>
+    <title>Chat App</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
 <body>
-    <div id="root"></div>
+    <div id="chat">
+        <div id="messages"></div>
+        <input type="text" id="messageInput" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        const socket = io("https://your-backend-url.com"); // Replace with your backend URL
+
+        // Receive chat history
+        socket.on('chatHistory', (messages) => {
+            messages.forEach(msg => addMessage(msg));
+        });
+
+        // Receive new messages
+        socket.on('chatMessage', (msg) => {
+            addMessage(msg);
+        });
+
+        // Send message function
+        function sendMessage() {
+            const input = document.getElementById("messageInput");
+            const message = input.value.trim();
+            if (message) {
+                socket.emit('chatMessage', { username: "User", message });
+                input.value = "";
+            }
+        }
+
+        // Add message to chat
+        function addMessage(msg) {
+            const messagesDiv = document.getElementById("messages");
+            messagesDiv.innerHTML += `<p><strong>${msg.username}:</strong> ${msg.message}</p>`;
+        }
+    </script>
 </body>
 </html>
