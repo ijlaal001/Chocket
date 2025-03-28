@@ -5,41 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat App</title>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        #chat {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        #messages {
+            height: 300px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ccc;
+            padding: 10px;
+        }
+        input {
+            width: 70%;
+            padding: 8px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 8px;
+        }
+    </style>
 </head>
 <body>
     <div id="chat">
+        <h2>Chat App</h2>
         <div id="messages"></div>
         <input type="text" id="messageInput" placeholder="Type a message...">
         <button onclick="sendMessage()">Send</button>
     </div>
 
     <script>
-        const socket = io("https://chocket-backend.onrender.com"); // Your Render backend URL
+        const socket = io("https://chocket-backend.onrender.com", {
+            transports: ["websocket", "polling"]
+        });
 
-        // Receive chat history
-        socket.on('chatHistory', (messages) => {
+        // Load previous messages (if backend supports it)
+        socket.on("chatHistory", (messages) => {
             messages.forEach(msg => addMessage(msg));
         });
 
         // Receive new messages
-        socket.on('chatMessage', (msg) => {
+        socket.on("chatMessage", (msg) => {
             addMessage(msg);
         });
 
-        // Send message function
         function sendMessage() {
             const input = document.getElementById("messageInput");
             const message = input.value.trim();
             if (message) {
-                socket.emit('chatMessage', { username: "User", message });
+                socket.emit("chatMessage", { username: "User", message }); // Hardcoded username
                 input.value = "";
             }
         }
 
-        // Add message to chat
         function addMessage(msg) {
             const messagesDiv = document.getElementById("messages");
-            messagesDiv.innerHTML += `<p><strong>${msg.username}:</strong> ${msg.message}</p>`;
+            const messageElement = document.createElement("p");
+            messageElement.innerHTML = `<strong>${msg.username || "User"}:</strong> ${msg.message}`;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to latest message
         }
     </script>
 </body>
