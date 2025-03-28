@@ -1,16 +1,15 @@
 {
-  "name": "chocket-frontend",
+  "name": "frontend",
   "version": "1.0.0",
-  "description": "Frontend for Chocket Chat App",
-  "main": "src/index.js",
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build"
-  },
+  "description": "Frontend for Chocket App",
+  "main": "index.js",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "socket.io-client": "^4.7.2"
+    "react-router-dom": "^6.15.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
   }
 }
