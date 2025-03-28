@@ -1,18 +1,23 @@
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
-const socket = io("https://chocket-backend.onrender.com"); // Update this with your backend URL
+const socket = io("https://chocket-backend.onrender.com");
 
 function App() {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
 
     useEffect(() => {
-        socket.on("message", (newMessage) => { // ✅ Fix: Now listening for "message"
+        socket.on("chatHistory", (history) => { // ✅ Load chat history on connect
+            setMessages(history);
+        });
+
+        socket.on("message", (newMessage) => {
             setMessages((prev) => [...prev, newMessage]);
         });
 
         return () => {
+            socket.off("chatHistory");
             socket.off("message");
         };
     }, []);
@@ -20,7 +25,7 @@ function App() {
     const sendMessage = () => {
         if (message.trim()) {
             const newMessage = { text: message, sender: "User" };
-            socket.emit("message", newMessage); // ✅ Fix: Now emitting "message"
+            socket.emit("message", newMessage);
             setMessage("");
         }
     };
