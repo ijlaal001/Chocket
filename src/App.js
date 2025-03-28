@@ -1,23 +1,48 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Home from "./pages/Home";
-import Login from "./components/Login";
-import Signup from "./components/Signup";
-import Dashboard from "./components/Dashboard";
+import React, { useEffect, useState } from "react";
+import io from "socket.io-client";
 
-const App = () => {
-    const isAuthenticated = !!localStorage.getItem("token");
+const socket = io("https://chocket-backend.onrender.com", {
+    transports: ["websocket", "polling"]
+});
+
+function App() {
+    const [message, setMessage] = useState("");
+    const [messages, setMessages] = useState([]);
+
+    useEffect(() => {
+        socket.on("message", (data) => {
+            setMessages((prevMessages) => [...prevMessages, data]);
+        });
+
+        return () => {
+            socket.off("message");
+        };
+    }, []);
+
+    const sendMessage = () => {
+        if (message.trim()) {
+            socket.emit("message", message);
+            setMessage("");
+        }
+    };
 
     return (
-        <Router>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} />
-                <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Signup />} />
-                <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
-            </Routes>
-        </Router>
+        <div>
+            <h1>Chocket Chat</h1>
+            <div>
+                {messages.map((msg, index) => (
+                    <p key={index}>{msg}</p>
+                ))}
+            </div>
+            <input
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Type a message..."
+            />
+            <button onClick={sendMessage}>Send</button>
+        </div>
     );
-};
+}
 
 export default App;
